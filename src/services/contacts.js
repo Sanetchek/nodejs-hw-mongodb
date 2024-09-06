@@ -1,4 +1,4 @@
-import ContactCollection from "../db/models/contact.js";
+import ContactCollection from "../db/models/Contact.js";
 
 export const getAllContacts = () => ContactCollection.find();
 
