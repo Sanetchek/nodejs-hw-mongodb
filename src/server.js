@@ -35,16 +35,16 @@ export const setupServer = () => {
     const data = await contactServices.getContactById(contactId);
 
     if (!data) {
-      res.status(404).json({
-        message: 'Contact not found'
-      })
+      return res.status(404).json({
+        message: 'Contact not found',
+      });
     }
 
     res.json({
       status: 200,
       message: `Successfully found contact with id ${contactId}!`,
       data
-    })
+    });
   });
 
   app.use((req, res) => {
