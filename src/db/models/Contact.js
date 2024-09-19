@@ -1,4 +1,7 @@
-import { Schema, model } from "mongoose";
+import {
+  Schema,
+  model
+} from "mongoose";
 
 const contactSchema = new Schema({
   name: {
@@ -14,13 +17,15 @@ const contactSchema = new Schema({
     type: Boolean,
     default: false
   },
-  contactTYpe: {
+  contactType: {
     type: String,
     enum: ["work", "home", "personal"],
     default: "personal",
     required: true
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
 const ContactCollection = model("contact", contactSchema);
 // "contact" - назва колекції в однині в базі данних до якої треба підключитись
