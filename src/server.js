@@ -11,17 +11,29 @@ import logger from "./middlewares/logger.js";
 export const setupServer = () => {
   const app = express();
 
+  // Middleware
   app.use(cors());
   app.use(logger);
   app.use(express.json());
 
+  // Routes
   app.use('/contacts', contactsRouter);
 
+  // 404 handler
   app.use(notFoundHandler);
 
+  // Error handler
   app.use(errorHandler);
 
+  // Port setup
   const port = Number(env("PORT", 3000));
 
-  app.listen(port, () => console.log(`Server started on port ${port}`));
-}
+  // Server listen
+  app.listen(port, (err) => {
+    if (err) {
+      console.error(`Error starting server: ${err.message}`);
+    } else {
+      console.log(`Server started on port ${port}`);
+    }
+  });
+};
