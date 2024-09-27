@@ -18,7 +18,7 @@ const contactSchema = new Schema({
     required: true
   },
   email: String,
-  isFavorite: {
+  isFavourite: {
     type: Boolean,
     default: false
   },
@@ -42,5 +42,7 @@ contactSchema.post("findOneAndUpdate", handleSaveError);
 const ContactCollection = model("contact", contactSchema);
 // "contact" - назва колекції в однині в базі данних до якої треба підключитись
 // MongoDB - base: my-contacts -> collection: contacts
+
+export const sortFields = ['name', 'phoneNumber', 'email', 'isFavourite', 'contactType', 'createdAt', 'updatedAt'];
 
 export default ContactCollection;

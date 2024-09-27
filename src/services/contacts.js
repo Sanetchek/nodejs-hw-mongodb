@@ -1,17 +1,38 @@
+import { SORT_ORDER } from "../constants/index.js";
 import ContactCollection from "../db/models/Contact.js";
 import calculatePaginationData from "../utils/calculatePaginationData.js";
+import parseContactFilterParams from "../utils/filters/parseContactParams.js";
 
 // Get all contacts
 export const getContacts = async ({
   perPage,
-  page
+  page,
+  sortBy = '_id',
+  sortOrder = SORT_ORDER[0],
+  filter = {}
 }) => {
   const skip = (page - 1) * perPage;
 
-  // Fetch the paginated data
-  const data = await ContactCollection.find().skip(skip).limit(perPage);
+  // Start building the query
+  let contactQuery = ContactCollection.find();
 
-  // Fetch the total count of documents
+  // Apply filters if they exist
+  if (filter.type) {
+    contactQuery = contactQuery.where('contactType').equals(filter.type);
+  }
+  if (filter.isFavourite) {
+    contactQuery = contactQuery.where('isFavourite').equals(filter.isFavourite);
+  }
+
+  // Fetch the paginated data with sorting, skipping, and limiting
+  const data = await contactQuery
+    .skip(skip)
+    .limit(perPage)
+    .sort({
+      [sortBy]: sortOrder
+    });
+
+  // Fetch the total count of documents (without pagination)
   const count = await ContactCollection.countDocuments();
 
   // Calculate total pages and boolean flags
