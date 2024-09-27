@@ -2,6 +2,11 @@ import {
   Schema,
   model
 } from "mongoose";
+import { contactTypeList } from "../../constants/contacts.js";
+import {
+  handleSaveError,
+  setUpdateOptions
+} from "./hooks.js";
 
 const contactSchema = new Schema({
   name: {
@@ -19,7 +24,7 @@ const contactSchema = new Schema({
   },
   contactType: {
     type: String,
-    enum: ["work", "home", "personal"],
+    enum: contactTypeList,
     default: "personal",
     required: true
   }
@@ -27,6 +32,12 @@ const contactSchema = new Schema({
   timestamps: true,
   versionKey: false
 });
+
+contactSchema.post("save", handleSaveError);
+
+contactSchema.pre("findOneAndUpdate", setUpdateOptions);
+
+contactSchema.post("findOneAndUpdate", handleSaveError);
 
 const ContactCollection = model("contact", contactSchema);
 // "contact" - назва колекції в однині в базі данних до якої треба підключитись
