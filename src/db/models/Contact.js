@@ -2,6 +2,11 @@ import {
   Schema,
   model
 } from "mongoose";
+import { contactTypeList } from "../../constants/contacts.js";
+import {
+  handleSaveError,
+  setUpdateOptions
+} from "./hooks.js";
 
 const contactSchema = new Schema({
   name: {
@@ -13,13 +18,13 @@ const contactSchema = new Schema({
     required: true
   },
   email: String,
-  isFavorite: {
+  isFavourite: {
     type: Boolean,
     default: false
   },
   contactType: {
     type: String,
-    enum: ["work", "home", "personal"],
+    enum: contactTypeList,
     default: "personal",
     required: true
   }
@@ -28,8 +33,16 @@ const contactSchema = new Schema({
   versionKey: false
 });
 
+contactSchema.post("save", handleSaveError);
+
+contactSchema.pre("findOneAndUpdate", setUpdateOptions);
+
+contactSchema.post("findOneAndUpdate", handleSaveError);
+
 const ContactCollection = model("contact", contactSchema);
 // "contact" - назва колекції в однині в базі данних до якої треба підключитись
 // MongoDB - base: my-contacts -> collection: contacts
+
+export const sortFields = ['name', 'phoneNumber', 'email', 'isFavourite', 'contactType', 'createdAt', 'updatedAt'];
 
 export default ContactCollection;
