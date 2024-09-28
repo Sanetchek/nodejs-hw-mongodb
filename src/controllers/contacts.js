@@ -1,7 +1,7 @@
 import createHttpError from "http-errors";
 import * as contactServices from "../services/contacts.js";
 import parsePaginationParams from "../utils/parsePaginationParams.js";
-import parseSortParams from "../utils/parseSortPArams.js";
+import parseSortParams from "../utils/parseSortParams.js";
 import {
   sortFields
 } from '../db/models/Contact.js';
