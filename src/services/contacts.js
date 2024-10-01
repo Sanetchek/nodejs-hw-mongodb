@@ -1,7 +1,6 @@
 import { SORT_ORDER } from "../constants/index.js";
 import ContactCollection from "../db/models/Contact.js";
 import calculatePaginationData from "../utils/calculatePaginationData.js";
-import parseContactFilterParams from "../utils/filters/parseContactParams.js";
 
 // Get all contacts
 export const getContacts = async ({
@@ -23,17 +22,20 @@ export const getContacts = async ({
   if (filter.isFavourite) {
     contactQuery = contactQuery.where('isFavourite').equals(filter.isFavourite);
   }
+  if (filter.userId) {
+    contactQuery = contactQuery.where('userId').equals(filter.userId);
+  }
 
-  // Fetch the paginated data with sorting, skipping, and limiting
-  const data = await contactQuery
-    .skip(skip)
-    .limit(perPage)
-    .sort({
-      [sortBy]: sortOrder
-    });
-
-  // Fetch the total count of documents (without pagination)
-  const count = await ContactCollection.countDocuments();
+  // Use the same query to get both paginated data and count
+  const [data, count] = await Promise.all([
+    contactQuery
+      .skip(skip)
+      .limit(perPage)
+      .sort({
+        [sortBy]: sortOrder
+      }),
+    contactQuery.clone().countDocuments() // Clone the query and count documents
+  ]);
 
   // Calculate total pages and boolean flags
   const paginationData = calculatePaginationData({
@@ -52,7 +54,7 @@ export const getContacts = async ({
 };
 
 // Get contact by ID
-export const getContactById = (contactId) => ContactCollection.findById(contactId);
+export const getContact = (filter) => ContactCollection.findById(filter);
 
 // Create a new contact
 export const createContact = (payload) => ContactCollection.create(payload);
