@@ -17,6 +17,7 @@ export const getAllContactsController = async (req, res) => {
     sortBy,
     sortOrder
   } = parseSortParams({ ...req.query, sortFields });
+  const { _id: userId } = req.user;
   const filter = parseContactFilterParams(req.query);
 
   const data = await contactServices.getContacts({
@@ -24,7 +25,7 @@ export const getAllContactsController = async (req, res) => {
     page,
     sortBy,
     sortOrder,
-    filter
+    filter: {...filter, userId}
   });
   res.json({
     status: 200,
@@ -38,7 +39,10 @@ export const getContactByIdController = async (req, res) => {
   const {
     contactId
   } = req.params;
-  const data = await contactServices.getContactById(contactId);
+  const {
+    _id: userId
+  } = req.user;
+  const data = await contactServices.getContact({_id: contactId, userId});
 
   if (!data) {
     throw createHttpError(404, {
@@ -57,7 +61,8 @@ export const getContactByIdController = async (req, res) => {
 
 // Add a new contact
 export const addContactController = async (req, res) => {
-  const data = await contactServices.createContact(req.body);
+  const { _id: userId } = req.user;
+  const data = await contactServices.createContact({...req.body, userId});
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',
@@ -71,10 +76,14 @@ export const upsertContactController = async (req, res) => {
     contactId
   } = req.params;
   const {
+    _id: userId
+  } = req.user;
+  const {
     isNew,
     data
   } = await contactServices.updateContact({
-      _id: contactId
+      _id: contactId,
+      userId
     },
     req.body, {
       upsert: true
@@ -94,8 +103,12 @@ export const patchContactController = async (req, res) => {
   const {
     contactId
   } = req.params;
+  const {
+    _id: userId
+  } = req.user;
   const result = await contactServices.updateContact({
-    _id: contactId
+    _id: contactId,
+    userId
   }, req.body);
 
   if (!result) {
@@ -118,8 +131,12 @@ export const deleteContactController = async (req, res) => {
   const {
     contactId
   } = req.params;
+  const {
+    _id: userId
+  } = req.user;
   const data = await contactServices.deleteContact({
-    _id: contactId
+    _id: contactId,
+    userId
   });
 
   if (!data) {
