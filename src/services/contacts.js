@@ -54,7 +54,7 @@ export const getContacts = async ({
 };
 
 // Get contact by ID
-export const getContact = (filter) => ContactCollection.findById(filter);
+export const getContact = (filter) => ContactCollection.findOne(filter);
 
 // Create a new contact
 export const createContact = (payload) => ContactCollection.create(payload);
