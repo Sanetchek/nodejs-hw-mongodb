@@ -6,6 +6,11 @@ import {
   sortFields
 } from '../db/models/Contact.js';
 import parseContactFilterParams from "../utils/filters/parseContactParams.js";
+import saveFileToUploadDir from "../utils/saveFileToUploadDir.js";
+import saveFileToCloudinary from "../utils/saveFileToCloudinary.js";
+import { env } from "../utils/env.js";
+
+const enableCloudinary = env("ENABLE_CLOUDINARY");
 
 // Get all contacts
 export const getAllContactsController = async (req, res) => {
@@ -61,8 +66,17 @@ export const getContactByIdController = async (req, res) => {
 
 // Add a new contact
 export const addContactController = async (req, res) => {
+  let photo;
+  if (req.file) {
+    if (enableCloudinary === "true") {
+      photo = await saveFileToCloudinary(req.file, "goit-nodejs");
+    } else {
+      photo = await saveFileToUploadDir(req.file);
+    }
+  }
+
   const { _id: userId } = req.user;
-  const data = await contactServices.createContact({...req.body, userId});
+  const data = await contactServices.createContact({...req.body, userId, photo});
   res.status(201).json({
     status: 201,
     message: 'Successfully created a contact!',
@@ -72,6 +86,15 @@ export const addContactController = async (req, res) => {
 
 // Upsert (update or insert) a contact
 export const upsertContactController = async (req, res) => {
+  let photo;
+  if (req.file) {
+    if (enableCloudinary === "true") {
+      photo = await saveFileToCloudinary(req.file, "goit-nodejs");
+    } else {
+      photo = await saveFileToUploadDir(req.file);
+    }
+  }
+
   const {
     contactId
   } = req.params;
@@ -83,7 +106,8 @@ export const upsertContactController = async (req, res) => {
     data
   } = await contactServices.updateContact({
       _id: contactId,
-      userId
+      userId,
+      photo
     },
     req.body, {
       upsert: true
@@ -100,6 +124,15 @@ export const upsertContactController = async (req, res) => {
 
 // PATCH contact by ID
 export const patchContactController = async (req, res) => {
+  let photo;
+  if (req.file) {
+    if (enableCloudinary === "true") {
+      photo = await saveFileToCloudinary(req.file, "goit-nodejs");
+    } else {
+      photo = await saveFileToUploadDir(req.file);
+    }
+  }
+
   const {
     contactId
   } = req.params;
@@ -108,7 +141,8 @@ export const patchContactController = async (req, res) => {
   } = req.user;
   const result = await contactServices.updateContact({
     _id: contactId,
-    userId
+    userId,
+    photo
   }, req.body);
 
   if (!result) {
