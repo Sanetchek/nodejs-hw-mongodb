@@ -18,6 +18,7 @@ export const setupServer = () => {
   app.use(logger);
   app.use(express.json());
   app.use(cookieParser());
+  app.use(express.static("uploads"));
 
   // Routes
   app.use('/auth', authRouter);
