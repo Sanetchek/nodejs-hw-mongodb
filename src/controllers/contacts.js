@@ -95,21 +95,16 @@ export const upsertContactController = async (req, res) => {
     }
   }
 
-  const {
-    contactId
-  } = req.params;
-  const {
-    _id: userId
-  } = req.user;
-  const {
-    isNew,
-    data
-  } = await contactServices.updateContact({
+  const { contactId } = req.params;
+  const { _id: userId } = req.user;
+  const { isNew, data } = await contactServices.updateContact({
       _id: contactId,
       userId,
-      photo
     },
-    req.body, {
+    {
+      ...req.body,
+      photo,
+    }, {
       upsert: true
     }
   );
@@ -132,18 +127,17 @@ export const patchContactController = async (req, res) => {
       photo = await saveFileToUploadDir(req.file);
     }
   }
+  const { contactId } = req.params;
+  const { _id: userId } = req.user;
 
-  const {
-    contactId
-  } = req.params;
-  const {
-    _id: userId
-  } = req.user;
   const result = await contactServices.updateContact({
     _id: contactId,
     userId,
-    photo
-  }, req.body);
+  }, {
+    ...req.body,
+    photo,
+  });
+
 
   if (!result) {
     throw createHttpError(404, {
