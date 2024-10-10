@@ -26,6 +26,7 @@
   "devDependencies": {
     "@eslint/js": "^9.2.0",
     "@redocly/cli": "^1.25.5",
+    "enzyme": "^3.11.0",
     "eslint": "^9.2.0",
     "globals": "^15.1.0",
     "nodemon": "^3.1.4",
