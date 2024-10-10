@@ -5,7 +5,7 @@ import * as path from "node:path";
 import * as fs from "node:fs/promises";
 import handlebars from "handlebars";
 
-import userCollection from "../db/models/User.js";
+import UserCollection from "../db/models/User.js";
 import SessionCollection from "../db/models/Session.js";
 import { accessTokenLifetime, refreshTokenLifetime } from "../constants/users.js";
 
@@ -18,6 +18,7 @@ import { createJwtToken, verifyToken } from "../utils/jwt.js";
 import {
   TEMPLATES_DIR
 } from "../constants/index.js";
+import { validateCode } from "../utils/googleOAuth2.js";
 
 const resetPasswordEmailPath = path.join(TEMPLATES_DIR, "reset-password-email.html");
 const resetPasswordEmailTemplateSource = await fs.readFile(resetPasswordEmailPath, "utf-8");
@@ -34,11 +35,11 @@ const createSession = () => {
     accessTokenValidUntil,
     refreshTokenValidUntil
   }
-}
+};
 
 export const register = async (payload) => {
   const { email, password } = payload;
-  const user = await userCollection.findOne({ email });
+  const user = await UserCollection.findOne({ email });
 
   if (user) {
     throw createHttpError(409, "Email in use");
@@ -46,7 +47,7 @@ export const register = async (payload) => {
 
   const hashPassword = await bcrypt.hash(password, 10);
 
-  const data = await userCollection.create({
+  const data = await UserCollection.create({
     ...payload,
     password: hashPassword
   });
@@ -57,7 +58,7 @@ export const register = async (payload) => {
 
 export const login = async (payload) => {
   const { email, password } = payload;
-  const user = await userCollection.findOne({ email });
+  const user = await UserCollection.findOne({ email });
 
   if (!user) {
     throw createHttpError(401, "Email or password invalid!");
@@ -83,7 +84,36 @@ export const login = async (payload) => {
   });
 
   return userSession;
-}
+};
+
+export const loginOrRegisterWithGoogleOAuth = async (code) => {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+
+  let user = await UserCollection.findOne({ email: payload.email });
+
+  if (!user) {
+    const password = randomBytes(10).toString('hex');
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    user = await UserCollection.create({
+      email: payload.email,
+      name: payload.name,
+      password: hashPassword
+    });
+    delete user._doc.password;
+  }
+
+  // Create a new session
+  const sessionData = createSession();
+
+  const userSession = await SessionCollection.create({
+    userId: user._id,
+    ...sessionData
+  });
+
+  return userSession;
+};
 
 export const findSessionByAccessToken = (accessToken) => SessionCollection.findOne({ accessToken });
 
@@ -129,9 +159,9 @@ export const logout = async (sessionId) => {
   await SessionCollection.deleteOne({
     _id: sessionId
   });
-}
+};
 
-export const findUser = (filter) => userCollection.findOne(filter);
+export const findUser = (filter) => UserCollection.findOne(filter);
 
 export const sendResetEmail = async (payload) => {
   const {
@@ -139,7 +169,7 @@ export const sendResetEmail = async (payload) => {
   } = payload;
 
   // Find the user by email
-  const user = await userCollection.findOne({
+  const user = await UserCollection.findOne({
     email
   });
 
@@ -183,7 +213,7 @@ export const resetPassword = async (token, password) => {
     throw createHttpError(401, "Token is expired or invalid.");
   }
 
-  const user = await userCollection.findOne({
+  const user = await UserCollection.findOne({
     email: data.email
   });
 
@@ -192,7 +222,7 @@ export const resetPassword = async (token, password) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
-  const userUpdated = await userCollection.findOneAndUpdate({
+  const userUpdated = await UserCollection.findOneAndUpdate({
     _id: user.id
   }, {
     password: hashPassword
