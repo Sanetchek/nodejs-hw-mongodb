@@ -354,7 +354,7 @@
                     "description": "Contact's email",
                     "example": "johndoe@example.com"
                   },
-                  "phone": {
+                  "phoneNumber": {
                     "type": "string",
                     "description": "Contact's phone number",
                     "example": 1234567890
@@ -364,11 +364,7 @@
                     "format": "binary",
                     "description": "Contact's photo (image file)"
                   }
-                },
-                "required": [
-                  "name",
-                  "email"
-                ]
+                }
               }
             }
           }

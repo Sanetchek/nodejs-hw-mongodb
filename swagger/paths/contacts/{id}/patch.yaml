@@ -29,7 +29,7 @@ requestBody:
             type: string
             description: Contact's email
             example: johndoe@example.com
-          phone:
+          phoneNumber:
             type: string
             description: Contact's phone number
             example: +1234567890
@@ -37,9 +37,6 @@ requestBody:
             type: string
             format: binary
             description: Contact's photo (image file)
-        required:
-          - name
-          - email
 responses:
   '200':
     description: 'Successfully updated contact by id'
