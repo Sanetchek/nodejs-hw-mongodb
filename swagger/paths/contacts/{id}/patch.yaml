@@ -14,13 +14,32 @@ parameters:
       example: '65ca67e7ae7f10c88b598384'
     description: The unique identifier of the contact to update.
 requestBody:
-  description: Contact data to update
+  description: Contact data to update (supports image upload)
   required: true
   content:
-    application/json:
+    multipart/form-data:
       schema:
         type: object
-        $ref: '../../../components/schemas/contacts.yaml'
+        properties:
+          name:
+            type: string
+            description: Contact's name
+            example: John Doe
+          email:
+            type: string
+            description: Contact's email
+            example: johndoe@example.com
+          phone:
+            type: string
+            description: Contact's phone number
+            example: +1234567890
+          photo:
+            type: string
+            format: binary
+            description: Contact's photo (image file)
+        required:
+          - name
+          - email
 responses:
   '200':
     description: 'Successfully updated contact by id'

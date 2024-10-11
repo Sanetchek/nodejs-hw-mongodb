@@ -176,7 +176,6 @@
                   "name",
                   "phoneNumber",
                   "email",
-                  "isFavourite",
                   "contactType",
                   "userId"
                 ],
@@ -196,17 +195,17 @@
                     "type": "string",
                     "example": "mail@mail.com"
                   },
-                  "isFavourite": {
-                    "description": "Contact's check for favourite",
-                    "type": "boolean",
-                    "example": false
-                  },
                   "contactType": {
                     "description": "Contact's type",
                     "type": "string",
                     "enum": [
                       "personal"
                     ]
+                  },
+                  "isFavourite": {
+                    "description": "Contact's check for favourite",
+                    "type": "boolean",
+                    "example": false
                   },
                   "photo": {
                     "description": "Link to Contact's photo",
@@ -338,13 +337,38 @@
           }
         ],
         "requestBody": {
-          "description": "Contact data to update",
+          "description": "Contact data to update (supports image upload)",
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "$ref": "#/components/schemas/contacts"
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Contact's name",
+                    "example": "John Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Contact's email",
+                    "example": "johndoe@example.com"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Contact's phone number",
+                    "example": 1234567890
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Contact's photo (image file)"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
               }
             }
           }
