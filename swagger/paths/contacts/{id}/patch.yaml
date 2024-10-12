@@ -22,21 +22,29 @@ requestBody:
         type: object
         properties:
           name:
+            description: "Contact's name"
             type: string
-            description: Contact's name
-            example: John Doe
-          email:
-            type: string
-            description: Contact's email
-            example: johndoe@example.com
+            example: 'John Doe'
           phoneNumber:
+            description: "Contact's phone number"
+            type: number
+            example: +380200008523
+          email:
+            description: "Contact's email"
             type: string
-            description: Contact's phone number
-            example: +1234567890
+            example: mail@mail.com
+          contactType:
+            description: "Contact's type"
+            type: string
+            enum: ['personal']
+          isFavourite:
+            description: "Contact's check for favourite"
+            type: boolean
+            example: false
           photo:
+            description: "Link to Contact's photo"
             type: string
             format: binary
-            description: Contact's photo (image file)
 responses:
   '200':
     description: 'Successfully updated contact by id'
